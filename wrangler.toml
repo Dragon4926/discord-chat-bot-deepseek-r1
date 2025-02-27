@@ -1,0 +1,13 @@
+# Cloudflare Worker configuration file
+name = "discord-ai-chatbot-proxy"
+main = "worker.js"
+compatibility_date = "2023-05-18"
+
+# Configure environment variables if needed
+# [vars]
+# MY_VARIABLE = "my-value"
+
+# Configure routes if you're using a custom domain
+# [routes]
+# pattern = "example.com/*"
+# zone_id = "your-zone-id"
