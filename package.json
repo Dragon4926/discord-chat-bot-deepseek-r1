@@ -1,0 +1,30 @@
+{
+  "name": "discord-openrouter-bot",
+  "version": "1.0.0",
+  "description": "Discord bot using OpenRouter AI hosted on Cloudflare Workers",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "openrouter",
+    "ai",
+    "cloudflare",
+    "workers"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "discord-interactions": "^4.1.1",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.7",
+    "openai": "^4.86.1"
+  },
+  "devDependencies": {
+    "wrangler": "^3.22.1"
+  }
+}

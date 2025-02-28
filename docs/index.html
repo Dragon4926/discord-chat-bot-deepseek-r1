@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elena - Advanced Discord AI Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        discord: '#5865F2',
+                        openrouter: '#00A67E',
+                        darkBg: '#0F0F13',
+                        darkCard: '#1A1A22',
+                        darkBorder: '#333340',
+                        darkText: '#E0E0E0',
+                        darkTextSecondary: '#AAAAAA',
+                        glowPurple: '#9C27B0',
+                        glowBlue: '#2196F3',
+                        elenaAccent: '#FF6B8B',
+                        elenaGradient1: '#7B4DFF',
+                        elenaGradient2: '#FF6B8B'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .glow-sphere {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(123, 77, 255, 0.4), rgba(255, 107, 139, 0.2));
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 15s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(-5%, -5%); }
+            50% { transform: translate(5%, 5%); }
+            100% { transform: translate(-5%, -5%); }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1A1A22;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            border-left-color: #FF6B8B;
+            background-color: rgba(255, 107, 139, 0.1);
+        }
+        
+        /* Enhanced sidebar styling */
+        .sidebar-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        /* Improved visual elements */
+        .sidebar-header {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem;
+        }
+        
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, rgba(123, 77, 255, 0.1), rgba(255, 107, 139, 0.1), rgba(123, 77, 255, 0.1));
+            animation: rotate 10s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 139, 0.1), transparent);
+            transition: all 0.5s ease;
+            z-index: -1;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(123, 77, 255, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(123, 77, 255, 0.2);
+            border-color: rgba(255, 107, 139, 0.3);
+        }
+
+        .command-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(123, 77, 255, 0.1);
+        }
+
+        .command-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px -3px rgba(123, 77, 255, 0.2);
+            border-color: rgba(255, 107, 139, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #7B4DFF, #FF6B8B);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-sticky {
+                position: relative;
+                height: auto;
+            }
+            .mobile-menu-toggle {
+                display: block;
+            }
+            .sidebar {
+                display: none;
+            }
+            .sidebar.open {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                z-index: 50;
+            }
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-darkText min-h-screen font-sans">
+    <div class="glow-sphere top-0 right-0"></div>
+    <div class="glow-sphere bottom-0 left-0 opacity-70"></div>
+
+    <!-- Mobile Menu Button (only visible on small screens) -->
+    <div class="md:hidden fixed top-4 right-4 z-50">
+        <button id="mobile-menu-toggle" class="bg-darkCard p-2 rounded-lg shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="sidebar w-full md:w-64 bg-darkCard shadow-md p-4 md:p-6 sidebar-sticky">
+            <div class="flex items-center space-x-2 mb-8 sidebar-header p-3">
+                <div class="bg-gradient-to-r from-elenaGradient1 to-elenaGradient2 p-2 rounded-lg shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold">Elena <span class="text-elenaAccent">AI</span></h1>
+            </div>
+            
+            <nav class="space-y-1">
+                <a href="#overview" class="nav-link block py-2 px-4 rounded hover:bg-opacity-10 hover:bg-elenaAccent font-medium">Overview</a>
+                <a href="#features" class="nav-link block py-2 px-4 rounded hover:bg-opacity-10 hover:bg-elenaAccent">Features</a>
+                <a href="#prerequisites" class="nav-link block py-2 px-4 rounded hover:bg-opacity-10 hover:bg-elenaAccent">Prerequisites</a>
+                <a href="#setup" class="nav-link block py-2 px-4 rounded hover:bg-opacity-10 hover:bg-elenaAccent">Setup</a>
+                <a href="#configuration" class="nav-link block py-2 px-4 rounded hover:bg-opacity-10 hover:bg-elenaAccent">Configuration</a>
+                <a href="#commands" class="nav-link block py-2 px-4 rounded hover:bg-opacity-10 hover:bg-elenaAccent">Bot Commands</a>
+                <a href="#deployment" class="nav-link block py-2 px-4 rounded hover:bg-opacity-10 hover:bg-elenaAccent">Deployment</a>
+                <a href="#api-reference" class="nav-link block py-2 px-4 rounded hover:bg-opacity-10 hover:bg-elenaAccent">API Reference</a>
+                <a href="#notes" class="nav-link block py-2 px-4 rounded hover:bg-opacity-10 hover:bg-elenaAccent">Notes</a>
+            </nav>
+            
+            <div class="mt-8 pt-4 border-t border-darkBorder">
+                <a href="https://github.com/yourusername/discord-openrouter-bot" class="flex items-center space-x-2 text-darkTextSecondary hover:text-darkText">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    <span>GitHub Repository</span>
+                </a>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <div class="max-w-4xl mx-auto">
+                <!-- Overview Section -->
+                <section id="overview" class="mb-12">
+                    <div class="bg-gradient-to-r from-elenaGradient1 to-elenaGradient2 p-8 rounded-lg shadow-md text-white mb-8">
+                        <h1 class="text-3xl md:text-4xl font-bold mb-4">Elena - Advanced Discord AI Bot</h1>
+                        <p class="text-lg opacity-90">A powerful Discord bot that uses OpenRouter AI to provide intelligent, context-aware responses to your server members.</p>
+                    </div>
+                </section>
+
+                <!-- Features Section -->
+                <section id="features" class="mb-12">
+                    <div class="bg-darkCard p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6 gradient-text inline-block">Features</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="feature-card bg-darkBg p-5 rounded-lg">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="bg-gradient-to-r from-elenaGradient1 to-elenaGradient2 p-2 rounded-lg shadow-md">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="font-semibold text-lg">Advanced AI Conversations</h3>
+                                </div>
+                                <p class="text-darkTextSecondary">Engage with Elena in natural, context-aware conversations. The bot remembers previous interactions and provides coherent responses.</p>
+                            </div>
+                            
+                            <div class="feature-card bg-darkBg p-5 rounded-lg">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="bg-gradient-to-r from-elenaGradient1 to-elenaGradient2 p-2 rounded-lg shadow-md">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="font-semibold text-lg">Customizable Settings</h3>
+                                </div>
+                                <p class="text-darkTextSecondary">Configure Elena's personality, response style, and behavior to match your server's unique atmosphere and community needs.</p>
+                            </div>
+                            
+                            <div class="feature-card bg-darkBg p-5 rounded-lg">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="bg-gradient-to-r from-elenaGradient1 to-elenaGradient2 p-2 rounded-lg shadow-md">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="font-semibold text-lg">Moderation & Safety</h3>
+                                </div>
+                                <p class="text-darkTextSecondary">Built-in content filtering and moderation capabilities to ensure conversations remain appropriate for your community guidelines.</p>
+                            </div>
+                            
+                            <div class="feature-card bg-darkBg p-5 rounded-lg">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="bg-gradient-to-r from-elenaGradient1 to-elenaGradient2 p-2 rounded-lg shadow-md">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="font-semibold text-lg">Serverless Architecture</h3>
+                                </div>
+                                <p class="text-darkTextSecondary">Deployed on Cloudflare Workers for high availability, low latency, and zero server management overhead.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Prerequisites Section -->
+                <section id="prerequisites" class="mb-12">
+                    <div class="bg-darkCard p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6 gradient-text inline-block">Prerequisites</h2>
+                        
+                        <ul class="space-y-4 text-darkTextSecondary">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-elenaAccent mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Discord account with developer access to create a bot</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-elenaAccent mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>OpenRouter account with API key</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-elenaAccent mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Cloudflare account for deploying the Workers application</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-elenaAccent mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Node.js and npm installed on your development machine</span>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                
+                <!-- Setup Section -->
+                <section id="setup" class="mb-12">
+                    <div class="bg-darkCard p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6 gradient-text inline-block">Setup</h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-3">1. Clone the Repository</h3>
+                                <pre><code class="language-bash">git clone https://github.com/yourusername/discord-openrouter-bot.git
+cd discord-openrouter-bot</code></pre>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-xl font-semibold mb-3">2. Install Dependencies</h3>
+                                <pre><code class="language-bash">npm install</code></pre>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-xl font-semibold mb-3">3. Create Discord Bot</h3>
+                                <ol class="list-decimal list-inside space-y-2 text-darkTextSecondary ml-4">
+                                    <li>Go to the <a href="https://discord.com/developers/applications" class="text-elenaAccent hover:underline">Discord Developer Portal</a></li>
+                                    <li>Click "New Application" and give it a name</li>
+                                    <li>Navigate to the "Bot" tab and click "Add Bot"</li>
+                                    <li>Under the "Privileged Gateway Intents" section, enable "Message Content Intent"</li>
+                                    <li>Copy your bot token for later use</li>
+                                </ol>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-xl font-semibold mb-3">4. Configure Environment Variables</h3>
+                                <p class="text-darkTextSecondary mb-3">Create a <code>wrangler.toml</code> file with the following content:</p>
+                                <pre><code class="language-toml">name = "elena-discord-bot"
+type = "javascript"
+compatibility_date = "2023-01-01"
+
+[vars]
+DISCORD_TOKEN = "your-discord-token"
+DISCORD_APPLICATION_ID = "your-application-id"
+OPENROUTER_API_KEY = "your-openrouter-api-key"
+DEFAULT_MODEL = "anthropic/claude-3-opus"
+CONTEXT_WINDOW = "10"</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Configuration Section -->
+                <section id="configuration" class="mb-12">
+                    <div class="bg-darkCard p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6 gradient-text inline-block">Configuration</h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-3">Bot Configuration Options</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full bg-darkBg rounded-lg overflow-hidden">
+                                        <thead>
+                                            <tr>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-darkText border-b border-darkBorder">Option</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-darkText border-b border-darkBorder">Description</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-darkText border-b border-darkBorder">Default</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">DEFAULT_MODEL</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">The AI model to use for responses</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">openai/gpt-4o</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">CONTEXT_WINDOW</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">Number of previous messages to include for context</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">10</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">TEMPERATURE</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">Controls randomness in responses (0-1)</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">0.7</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">SYSTEM_PROMPT</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">Base instructions for Elena's personality</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">Customizable</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">CHANNEL_ID</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">Discord channel where Elena will respond</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">Required</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">HISTORY_LIMIT</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">Maximum conversation history entries per user</td>
+                                                <td class="px-4 py-3 text-sm border-b border-darkBorder">20</td>
+                                            </tr>

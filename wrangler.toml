@@ -1,13 +1,11 @@
-# Cloudflare Worker configuration file
-name = "discord-ai-chatbot-proxy"
-main = "worker.js"
-compatibility_date = "2023-05-18"
+name = "discord-openrouter-bot"
+main = "src/index.js"
+compatibility_date = "2023-10-30"
 
-# Configure environment variables if needed
-# [vars]
-# MY_VARIABLE = "my-value"
+[vars]
+CHANNEL_ID = "1344773348932063324"
 
-# Configure routes if you're using a custom domain
-# [routes]
-# pattern = "example.com/*"
-# zone_id = "your-zone-id"
+# Secrets that will be encrypted
+# Run these commands to set them up:
+# npx wrangler secret put BOT_TOKEN
+# npx wrangler secret put OPENROUTER_API_KEY

@@ -1,97 +1,88 @@
-# Discord AI Chatbot
+# Discord OpenRouter AI Bot
 
-A web-based Discord AI chatbot that uses OpenAI's API to generate responses to messages in a Discord channel.
+A Discord bot that uses OpenRouter AI to respond to chat messages, designed to be hosted on Cloudflare Workers' free plan.
 
 ## Features
 
-- Connect to Discord channels using a bot token
-- Send and receive messages through Discord API
-- Generate AI responses using OpenAI API
-- Customizable AI personality and response length
-- Support for different OpenAI models (GPT-3.5 Turbo, GPT-4, GPT-4 Turbo)
-- Streaming responses for a better user experience
+- AI-powered chat responses using OpenRouter API
+- Conversation memory for contextual responses
+- Channel-specific operation
+- Command to reset conversation history
+- Serverless deployment on Cloudflare Workers
 
-## Setup Instructions
+## Prerequisites
 
-### Prerequisites
+- Node.js and npm installed
+- A Discord bot token (from Discord Developer Portal)
+- An OpenRouter API key
+- Cloudflare account
 
-- A Discord bot token (create one at [Discord Developer Portal](https://discord.com/developers/applications))
-- An OpenAI API key
-- A Discord channel ID where the bot has permission to read and send messages
+## Setup
 
-### Installation
+1. Clone this repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Configure your environment:
+   - The bot is configured to use Cloudflare Workers' encrypted secrets
+   - Run these commands to set up your secrets:
+     ```
+     npx wrangler secret put BOT_TOKEN
+     npx wrangler secret put OPENROUTER_API_KEY
+     ```
+   - Update the `CHANNEL_ID` in `wrangler.toml` to your Discord channel ID
 
-1. Clone or download this repository
+## Discord Bot Setup
 
-### Running the Application
+1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
+2. Create a new application
+3. Navigate to the "Bot" tab and create a bot
+4. Enable the "Message Content Intent" under Privileged Gateway Intents
+5. Copy your bot token and use it for the `BOT_TOKEN` secret
+6. Go to OAuth2 > URL Generator:
+   - Select scopes: `bot` and `applications.commands`
+   - Select bot permissions: `Send Messages`, `Use Slash Commands`
+   - Use the generated URL to invite the bot to your server
 
-#### Option 1: Local Development with Cloudflare Workers
+## Register Slash Commands
 
-1. Install Wrangler CLI (Cloudflare Workers command-line tool):
+Create a separate script to register your slash commands with Discord:
 
-```bash
-npm install -g wrangler
+1. Create a file named `register-commands.js` in your project
+2. Run it once to register your commands:
+   ```
+   node register-commands.js
+   ```
+
+## Development
+
+To run the bot locally for development:
+
+```
+npm run dev
 ```
 
-2. Start the local development server:
+## Deployment
 
-```bash
-wrangler dev worker.js
+To deploy to Cloudflare Workers:
+
+```
+npm run deploy
 ```
 
-3. Open `index.html` in your browser (you can use a simple HTTP server like `http-server` or VS Code's Live Server extension)
+## Usage
 
-#### Option 2: Deploy to Cloudflare Workers
+Once deployed, you can use these commands in your Discord server:
 
-1. Login to your Cloudflare account with Wrangler:
+- `/chat [message]` - Chat with the AI assistant
+- `/reset` - Reset your conversation history
 
-```bash
-wrangler login
-```
+## Notes
 
-2. Deploy the worker:
-
-```bash
-wrangler publish
-```
-
-3. Update the worker URL in `app.js` with your deployed worker URL
-
-3. Enter your Discord bot token, channel ID, and OpenAI API key in the web interface
-
-4. Click "Connect Bot" to start the connection
-
-## How It Works
-
-This application uses a proxy server to handle CORS issues when communicating with Discord and OpenAI APIs. The proxy server is implemented using Express.js and runs on port 3001 by default.
-
-- The frontend makes requests to the proxy server instead of directly to Discord/OpenAI
-- The proxy server forwards these requests to the appropriate API endpoints
-- The proxy server handles authentication and returns the responses to the frontend
-
-## Troubleshooting
-
-### CORS Issues
-
-If you're experiencing CORS errors, make sure:
-
-1. The proxy server is running (`npm start`)
-2. The frontend is using the correct proxy URLs (`http://localhost:3001/api/discord` and `http://localhost:3001/api/openai`)
-
-### Authentication Errors
-
-If you're seeing 401 or 403 errors:
-
-1. Verify your Discord bot token is correct
-2. Ensure your bot has been invited to the server and has appropriate permissions
-3. Check that the channel ID is correct and the bot has access to it
-
-### OpenAI API Errors
-
-If AI responses are failing:
-
-1. Verify your OpenAI API key is correct and has sufficient credits
-2. Check that you're using a valid model name in the dropdown
+- The bot only responds in the channel specified in `wrangler.toml`
+- Conversation history is stored in memory and will be lost when the worker restarts
+- For production use, consider using Cloudflare KV or D1 for persistent storage
 
 ## License
 
